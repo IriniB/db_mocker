@@ -1,16 +1,13 @@
-from uuid import uuid4
 import psycopg2
 import uvicorn as uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from conf import host, user, password, database
 from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_INFO, \
     SQL_DELETE_TABLE, SQL_INSERT_QUERY, SQL_DELETE_QUERY_BY_ID, SQL_GET_QUERY_BY_ID, \
     SQL_GET_QUERY_BY_TABLE, SQL_GET_TABLE_QUERIES, SQL_GET_SINGLE_QUERIES, \
-    SQL_CREATE_USER, SQL_GET_USER_BY_ID, SQL_GET_ALL_USERS, SQL_CREATE_TABLE_IN_DB, \
     SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY
 
 app = FastAPI()
-
 
 def create_db_connection(host_name, user_name, user_password, db_name):
     pgparams = {
@@ -30,21 +27,11 @@ def close_connection(conn):
 
 @app.post('/api/user/create-user')
 async def create_user(name: str):
-    conn = create_db_connection(host, user, password, 'user_info')
+    conn = create_db_connection(host, user, password, database)
     cursor = conn.cursor()
     try:
-        cursor.execute(SQL_GET_ALL_USERS)
-        all_users = [item[0] for item in cursor.fetchall()]
-        if name in all_users:
-            raise HTTPException(420, "Пользователь с таким именем уже существует")
-        current_user_id = str(uuid4())
         app.state.user_name = name
-        cursor.execute(SQL_CREATE_USER, (current_user_id, name))
-
-        conn3 = create_db_connection(host, user, password, database)
-        cursor3 = conn3.cursor()
-        cursor3.execute(SQL_CREATE_DB % {"db_name": name})
-
+        cursor.execute(SQL_CREATE_DB % {"db_name": name})
         conn2 = create_db_connection(host, user, password, name)
         cursor2 = conn2.cursor()
         cursor2.execute(SQL_CREATE_TABLE % {"table_name": "queries",
@@ -54,8 +41,6 @@ async def create_user(name: str):
                                                        " db_name VARCHAR(40)"})
 
         close_connection(conn2)
-        close_connection(conn3)
-
     except Exception as err:
         print(f"Error: '{err}'")
     close_connection(conn)

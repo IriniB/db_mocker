@@ -1,15 +1,7 @@
-SQL_GET_ALL_USERS = "SELECT name FROM user_info.users;"
-SQL_CREATE_DB = "CREATE DATABASE %(db_name)s"
+SQL_CREATE_DB = "CREATE DATABASE \"%(db_name)s\""
 SQL_CREATE_SCHEMA = "CREATE SCHEMA %(schema_name)s"
-SQL_CREATE_USER = "INSERT INTO user_info.users (id, name) VALUES (%s, %s);"
-SQL_CREATE_TABLE_IN_DB = "CREATE %(db_name)s.TABLE %(table_name)s (%(columns)s);"
 SQL_GET_ALL_DB = "select schema_name from information_schema.schemata;"
 SQL_CREATE_TABLE = "CREATE TABLE %(table_name)s (%(columns)s);"
-
-
-SQL_SAVE_DB = "INSERT INTO created_db (id, name, user_id) VALUES (%s, %s, %s);"
-SQL_GET_USER_BY_ID = "SELECT name FROM users WHERE id = %(user_id)s;"
-# SQL_GET_ALL_DB = "SELECT name FROM created_db WHERE user_id = %(user_id)s;"
 SQL_GET_TABLE_INFO = "SELECT table_name, column_name, data_type FROM information_schema.columns " \
                      "WHERE table_name = %(table_name)s;"
 SQL_GET_PRI_KEY = "SELECT c.column_name " \
