@@ -19,4 +19,8 @@ SQL_GET_TABLE_QUERIES = "SELECT * FROM queries WHERE table_name IS NOT NULL"
 SQL_GET_SINGLE_QUERIES = "SELECT * FROM queries WHERE table_name IS NULL"
 SQL_GET_TABLE_DATA = "SELECT * FROM %(table_name)s"
 SQL_INSERT_TABLE_DATA = """INSERT INTO {table_name} values {data}"""
-SQL_DELETE_DATA = """DELETE FROM {table_name} """
+SQL_DELETE_DATA = """DELETE FROM {table_name};"""
+SQL_GET_ALL_USERS = "SELECT datname FROM pg_database;"
+SQL_GET_ALL_TABLES = "SELECT table_name " \
+                     "FROM information_schema.tables " \
+                     "WHERE table_schema = %(db_name)s;"

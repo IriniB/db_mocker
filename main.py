@@ -5,7 +5,8 @@ from conf import host, user, password, database
 from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_INFO, \
     SQL_DELETE_TABLE, SQL_INSERT_QUERY, SQL_DELETE_QUERY_BY_ID, SQL_GET_QUERY_BY_ID, \
     SQL_GET_QUERY_BY_TABLE, SQL_GET_TABLE_QUERIES, SQL_GET_SINGLE_QUERIES, \
-    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA, SQL_DELETE_DATA
+    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA,\
+    SQL_DELETE_DATA, SQL_GET_ALL_USERS, SQL_GET_ALL_TABLES
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -42,6 +43,12 @@ async def create_user(name: str):
     cursor = conn.cursor()
     try:
         app.state.user_name = name
+        cursor.execute(SQL_GET_ALL_USERS)
+        all_users = cursor.fetchall()
+        for i in range(0, len(all_users)):
+            all_users[i] = all_users[i][0]
+        if name in all_users:
+            return JSONResponse(content={"message": "Ok"}, status_code=200)
         cursor.execute(SQL_CREATE_DB % {"db_name": name})
         conn2 = create_db_connection(host, user, password, name)
         cursor2 = conn2.cursor()
@@ -96,7 +103,7 @@ async def get_all_db():
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
     close_connection(conn)
-    return JSONResponse(content={"message": "Ok"}, status_code=200)
+    return db_list
 
 
 @app.post('/api/db/select-db')
@@ -130,6 +137,24 @@ async def create_table(table_name: str, columns_amount: int, primary_key: str, c
     close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
+
+@app.post('/api/db/get-all-tables_in_db')
+async def get_all_tables_in_db(db_name: str):
+    try:
+        conn = create_db_connection(host, user, password, app.state.user_name)
+    except Exception:
+        return JSONResponse(content={"message": "Set user"}, status_code=406)
+    cursor = conn.cursor()
+    table_list = []
+    try:
+        cursor.execute(SQL_GET_ALL_TABLES, {"db_name": db_name})
+        table_list = cursor.fetchall()
+        for i in range(0, len(table_list)):
+            table_list[i] = table_list[i][0]
+    except Exception as err:
+        return JSONResponse(content={"message": str(err)}, status_code=406)
+    close_connection(conn)
+    return table_list
 
 @app.get('/api/table/get-table-by-name')
 async def get_table_by_name(name: str):
