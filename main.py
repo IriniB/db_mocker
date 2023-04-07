@@ -5,7 +5,7 @@ from conf import host, user, password, database
 from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_INFO, \
     SQL_DELETE_TABLE, SQL_INSERT_QUERY, SQL_DELETE_QUERY_BY_ID, SQL_GET_QUERY_BY_ID, \
     SQL_GET_QUERY_BY_TABLE, SQL_GET_TABLE_QUERIES, SQL_GET_SINGLE_QUERIES, \
-    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA
+    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA, SQL_DELETE_DATA
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -404,6 +404,7 @@ async def add_query(table_name: str, data: list):
         for i in range(len(data)):
             data[i] = tuple(map(lambda x: str(x), data[i]))
         records_list_template = ','.join(['%s'] * len(data))
+        cursor.execute(SQL_DELETE_DATA.format(table_name=app.state.db_name + '.' + table_name))
         insert_query = SQL_INSERT_TABLE_DATA.format(table_name=app.state.db_name + '.' + table_name,
                                                     data=records_list_template)
         cursor.execute(insert_query, data)
