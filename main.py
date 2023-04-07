@@ -5,7 +5,7 @@ from conf import host, user, password, database
 from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_INFO, \
     SQL_DELETE_TABLE, SQL_INSERT_QUERY, SQL_DELETE_QUERY_BY_ID, SQL_GET_QUERY_BY_ID, \
     SQL_GET_QUERY_BY_TABLE, SQL_GET_TABLE_QUERIES, SQL_GET_SINGLE_QUERIES, \
-    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA,\
+    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA, \
     SQL_DELETE_DATA, SQL_GET_ALL_USERS, SQL_GET_ALL_TABLES
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -20,6 +20,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 def create_db_connection(host_name, user_name, user_password, db_name):
     pgparams = {
@@ -65,12 +66,6 @@ async def create_user(name: str):
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
-@app.post('/api/user/set-user')
-async def set_user(user_name: str):
-    app.state.user_name = user_name
-    return JSONResponse(content={"message": "Ok"}, status_code=200)
-
-
 @app.post('/api/db/create-db')
 async def create_db(name: str):
     try:
@@ -104,12 +99,6 @@ async def get_all_db():
         return JSONResponse(content={"message": str(err)}, status_code=406)
     close_connection(conn)
     return db_list
-
-
-@app.post('/api/db/select-db')
-async def select_db(db_name: str):
-    app.state.db_name = db_name
-    return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
 @app.post('/api/table/create-table')
@@ -147,6 +136,7 @@ async def get_all_tables_in_db(db_name: str):
     cursor = conn.cursor()
     table_list = []
     try:
+        app.state.db_name = db_name
         cursor.execute(SQL_GET_ALL_TABLES, {"db_name": db_name})
         table_list = cursor.fetchall()
         for i in range(0, len(table_list)):
@@ -155,6 +145,7 @@ async def get_all_tables_in_db(db_name: str):
         return JSONResponse(content={"message": str(err)}, status_code=406)
     close_connection(conn)
     return table_list
+
 
 @app.get('/api/table/get-table-by-name')
 async def get_table_by_name(name: str):
@@ -417,6 +408,7 @@ async def get_single_queries(table_name: str):
         return JSONResponse(content={"message": str(err)}, status_code=406)
     close_connection(conn)
     return res
+
 
 @app.post('/api/table/save-data')
 async def add_query(table_name: str, data: list):
