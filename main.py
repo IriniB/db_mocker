@@ -127,7 +127,7 @@ async def create_table(table_name: str, columns_amount: int, primary_key: str, c
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
-@app.post('/api/db/get-all-tables_in_db')
+@app.get('/api/db/get-all-tables_in_db')
 async def get_all_tables_in_db(db_name: str):
     try:
         conn = create_db_connection(host, user, password, app.state.user_name)
