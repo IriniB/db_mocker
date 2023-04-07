@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from conf import host, user, password, database
 from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_INFO, \
     SQL_DELETE_TABLE, SQL_INSERT_QUERY, SQL_DELETE_QUERY_BY_ID, SQL_GET_QUERY_BY_ID, \
-    SQL_GET_QUERY_BY_TABLE, SQL_GET_TABLE_QUERIES, SQL_GET_SINGLE_QUERIES, \
-    SQL_CREATE_SCHEMA, SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA, \
+    SQL_GET_QUERY_BY_TABLE, SQL_CREATE_SCHEMA,\
+    SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA, \
     SQL_DELETE_DATA, SQL_GET_ALL_USERS, SQL_GET_ALL_TABLES
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -82,7 +82,7 @@ async def create_db(name: str):
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
-@app.post('/api/db/get-all-db')
+@app.get('/api/db/get-all-db')
 async def get_all_db():
     try:
         conn = create_db_connection(host, user, password, app.state.user_name)
@@ -290,111 +290,8 @@ async def get_query_by_id(id: str):
     close_connection(conn)
     return res
 
-
-@app.get('/api/table-query/get-all-table-queries')
-async def get_table_queries():
-    try:
-        conn = create_db_connection(host, user, password, app.state.user_name)
-    except Exception:
-        return JSONResponse(content={"message": "Set user"}, status_code=406)
-    cursor = conn.cursor()
-    res = []
-    try:
-        cursor.execute(SQL_GET_TABLE_QUERIES)
-        res = cursor.fetchall()
-    except Exception as err:
-        return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
-    return res
-
-
-@app.post('/api/single-query/add-new-query')
-async def add_query(query_id: str, query: str):
-    try:
-        conn = create_db_connection(host, user, password, app.state.user_name)
-    except Exception:
-        return JSONResponse(content={"message": "Set user"}, status_code=406)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(SQL_INSERT_QUERY, (query_id, query, None, app.state.db_name))
-        conn.commit()
-    except Exception as err:
-        return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
-    return JSONResponse(content={"message": "Ok"}, status_code=200)
-
-
-@app.put('api/single-query/modify-single-query')
-async def modify_query(query_id: str, query: str):
-    try:
-        conn = create_db_connection(host, user, password, app.state.user_name)
-    except Exception:
-        return JSONResponse(content={"message": "Set user"}, status_code=406)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(SQL_DELETE_QUERY_BY_ID, {'query_id': query_id})
-        cursor.execute(SQL_INSERT_QUERY, (query_id, query, None, app.state.db_name))
-        conn.commit()
-    except Exception as err:
-        return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
-    return JSONResponse(content={"message": "Ok"}, status_code=200)
-
-
-@app.delete('/api/single-query/delete-single-query-by-id')
-async def delete_query(id: str):
-    try:
-        conn = create_db_connection(host, user, password, app.state.user_name)
-    except Exception:
-        return JSONResponse(content={"message": "Set user"}, status_code=406)
-    cursor = conn.cursor()
-    try:
-        cursor.execute(SQL_DELETE_QUERY_BY_ID, {'query_id': id})
-        conn.commit()
-    except Exception as err:
-        return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
-    return JSONResponse(content={"message": "Ok"}, status_code=200)
-
-
-@app.get('/api/single-query/execute-single-query-by-id')
-async def execute_query(id: str):
-    try:
-        conn = create_db_connection(host, user, password, app.state.user_name)
-    except Exception:
-        return JSONResponse(content={"message": "Set user"}, status_code=406)
-    cursor = conn.cursor()
-    res = ""
-    try:
-        cursor.execute(SQL_GET_QUERY_BY_ID, {'query_id': id})
-        (id, query, table_name, db_name) = cursor.fetchone()
-        cursor.execute(query)
-        res = cursor.fetchall()
-    except Exception as err:
-        return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
-    return res
-
-
-@app.get('/api/single-query/get-all-single-queries')
-async def get_single_queries():
-    try:
-        conn = create_db_connection(host, user, password, app.state.user_name)
-    except Exception:
-        return JSONResponse(content={"message": "Set user"}, status_code=406)
-    cursor = conn.cursor()
-    res = []
-    try:
-        cursor.execute(SQL_GET_SINGLE_QUERIES)
-        res = cursor.fetchall()
-    except Exception as err:
-        return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
-    return res
-
-
 @app.get('/api/table/get-data')
-async def get_single_queries(table_name: str):
+async def get_table_data(table_name: str):
     try:
         conn = create_db_connection(host, user, password, app.state.user_name)
     except Exception:
@@ -411,7 +308,7 @@ async def get_single_queries(table_name: str):
 
 
 @app.post('/api/table/save-data')
-async def add_query(table_name: str, data: list):
+async def save_table_data(table_name: str, data: list):
     try:
         conn = create_db_connection(host, user, password, app.state.user_name)
     except Exception:

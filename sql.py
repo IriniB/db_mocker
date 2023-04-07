@@ -15,8 +15,6 @@ SQL_INSERT_QUERY = "INSERT INTO queries (id, query, table_name, db_name) VALUES 
 SQL_DELETE_QUERY_BY_ID = "DELETE FROM queries WHERE id = %(query_id)s"
 SQL_GET_QUERY_BY_ID = "SELECT * FROM queries WHERE id = %(query_id)s"
 SQL_GET_QUERY_BY_TABLE = "SELECT * FROM queries WHERE table_name = %(table_name)s"
-SQL_GET_TABLE_QUERIES = "SELECT * FROM queries WHERE table_name IS NOT NULL"
-SQL_GET_SINGLE_QUERIES = "SELECT * FROM queries WHERE table_name IS NULL"
 SQL_GET_TABLE_DATA = "SELECT * FROM %(table_name)s"
 SQL_INSERT_TABLE_DATA = """INSERT INTO {table_name} values {data}"""
 SQL_DELETE_DATA = """DELETE FROM {table_name};"""
