@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import psycopg2
 import uvicorn as uvicorn
 from fastapi import FastAPI
@@ -189,13 +191,14 @@ async def delete_table_by_name(name: str):
 
 
 @app.post('/api/table-query/add-new-query-to-table')
-async def add_query_to_table(query_id: str, table_name: str, query: str):
+async def add_query_to_table(table_name: str, query: str):
     try:
         conn = create_db_connection(host, user, password, app.state.user_name)
     except Exception:
         return JSONResponse(content={"message": "Set user"}, status_code=406)
     cursor = conn.cursor()
     try:
+        query_id = uuid4()
         cursor.execute(SQL_INSERT_QUERY, (query_id, query, table_name, app.state.db_name))
         conn.commit()
     except Exception as err:
