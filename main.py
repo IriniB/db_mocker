@@ -62,7 +62,8 @@ async def create_user(name: str):
         close_connection(conn2)
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -78,7 +79,8 @@ async def create_db(name: str):
         app.state.db_name = name
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -97,7 +99,8 @@ async def get_all_db():
         db_list = [x[0] for x in db_list if x[0] not in to_delete]
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return db_list
 
 
@@ -123,7 +126,8 @@ async def create_table(table_name: str, columns_amount: int, primary_key: str, c
         cursor.execute(a)
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -143,7 +147,8 @@ async def get_all_tables_in_db(db_name: str):
             table_list[i] = table_list[i][0]
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return table_list
 
 
@@ -168,7 +173,8 @@ async def get_table_by_name(name: str):
         res["primary_key"] = cursor.fetchone()[0]
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return res
 
 
@@ -184,7 +190,8 @@ async def delete_table_by_name(name: str):
         conn.commit()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -200,7 +207,8 @@ async def add_query_to_table(query_id: str, table_name: str, query: str):
         conn.commit()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -217,7 +225,8 @@ async def modify_query_in_table(query_id: str, table_name: str, query: str):
         conn.commit()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -233,7 +242,8 @@ async def delete_query_in_table(id: str):
         conn.commit()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
@@ -253,7 +263,8 @@ async def execute_query_in_table(id: str):
         res = cursor.fetchall()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return res
 
 
@@ -270,7 +281,8 @@ async def get_queries_by_table(name: str):
         res = cursor.fetchall()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return res
 
 
@@ -287,8 +299,10 @@ async def get_query_by_id(id: str):
         res = cursor.fetchall()
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return res
+
 
 @app.get('/api/table/get-data')
 async def get_table_data(table_name: str):
@@ -308,7 +322,8 @@ async def get_table_data(table_name: str):
         res.insert(0, column_names)
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return res
 
 
@@ -329,7 +344,8 @@ async def save_table_data(table_name: str, data: list):
         cursor.execute(insert_query, data)
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
-    close_connection(conn)
+    finally:
+        close_connection(conn)
     return JSONResponse(content={"message": "Ok"}, status_code=200)
 
 
