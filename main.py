@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from conf import host, user, password, database
 from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_INFO, \
     SQL_DELETE_TABLE, SQL_INSERT_QUERY, SQL_DELETE_QUERY_BY_ID, SQL_GET_QUERY_BY_ID, \
-    SQL_GET_QUERY_BY_TABLE, SQL_CREATE_SCHEMA,\
+    SQL_GET_QUERY_BY_TABLE, SQL_CREATE_SCHEMA, SQL_GET_TABLE_COLUMNS_NAME, \
     SQL_GET_PRI_KEY, SQL_GET_TABLE_DATA, SQL_INSERT_TABLE_DATA, \
     SQL_DELETE_DATA, SQL_GET_ALL_USERS, SQL_GET_ALL_TABLES
 from fastapi.middleware.cors import CORSMiddleware
@@ -301,6 +301,11 @@ async def get_table_data(table_name: str):
     try:
         cursor.execute(SQL_GET_TABLE_DATA % {'table_name': app.state.db_name + '.' + table_name})
         res = cursor.fetchall()
+        cursor.execute(SQL_GET_TABLE_COLUMNS_NAME, {'table_name': table_name})
+        column_names = cursor.fetchall()
+        for i in range(0, len(column_names)):
+            column_names[i] = column_names[i][0]
+        res.insert(0, column_names)
     except Exception as err:
         return JSONResponse(content={"message": str(err)}, status_code=406)
     close_connection(conn)

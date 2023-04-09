@@ -4,6 +4,8 @@ SQL_GET_ALL_DB = "select schema_name from information_schema.schemata;"
 SQL_CREATE_TABLE = "CREATE TABLE %(table_name)s (%(columns)s);"
 SQL_GET_TABLE_INFO = "SELECT table_name, column_name, data_type FROM information_schema.columns " \
                      "WHERE table_name = %(table_name)s;"
+SQL_GET_TABLE_COLUMNS_NAME = "SELECT column_name FROM information_schema.columns " \
+                     "WHERE table_name = %(table_name)s;"
 SQL_GET_PRI_KEY = "SELECT c.column_name " \
                   "FROM information_schema.table_constraints tc " \
                   "JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_name) " \
