@@ -9,6 +9,7 @@ from sql import SQL_CREATE_DB, SQL_GET_ALL_DB, SQL_CREATE_TABLE, SQL_GET_TABLE_I
     SQL_DELETE_DATA, SQL_GET_ALL_USERS, SQL_GET_ALL_TABLES
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import sqlvalidator
 
 app = FastAPI()
 origins = ["*"]
@@ -202,6 +203,9 @@ async def add_query_to_table(query_id: str, table_name: str, query: str):
     except Exception:
         return JSONResponse(content={"message": "Set user"}, status_code=406)
     cursor = conn.cursor()
+    sql_query = sqlvalidator.parse(query)
+    if not sql_query.is_valid():
+        return JSONResponse(content={"message": sql_query.errors}, status_code=406)
     try:
         cursor.execute(SQL_INSERT_QUERY, (query_id, query, table_name, app.state.db_name))
         conn.commit()
